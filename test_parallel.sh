@@ -1,0 +1,13 @@
+python train_proposed.py --model alexnet --fixed False --Augmentation True 
+python train_proposed.py --model vgg16 --fixed False --Augmentation True 
+python train_proposed.py --model resnet50 --fixed False --Augmentation True 
+python train_proposed.py --model alexnet --fixed False --Augmentation True 
+python train_proposed.py --model resnet50 --fixed False --Augmentation True 
+python train_proposed.py --model resnet50 --fixed False --Augmentation True 
+python train_proposed.py --model resnet50 --fixed False --Augmentation True 
+python train_proposed.py --model vgg16 --fixed False --Augmentation True 
+python train_proposed.py --model resnet50 --fixed False --Augmentation True 
+python train_proposed.py --model alexnet --fixed False --Augmentation True 
+python train_proposed.py --model vgg16 --fixed False --Augmentation True 
+python train_proposed.py --model resnet50 --fixed False --Augmentation True 
+python train_proposed.py --model alexnet --fixed False --Augmentation True 
