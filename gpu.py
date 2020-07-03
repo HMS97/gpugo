@@ -4,8 +4,9 @@ from subprocess import Popen, PIPE
 import pandas as pd
 import signal
 import os 
-import click
 from multiprocessing import Process
+from loguru import logger 
+
 
 class ProcessInfo:
     def __init__(self,uuid,pid,descrition,used_memory):
@@ -46,13 +47,15 @@ class GPU:
 
 
     def kill_process(self):
-        pids = self.tasks_info()['pid'].values
+        try:
+            pids = self.tasks_info()['pid'].values
+        except:
+            print(f"there are no tasks on device {self.GPU_index}!")
+            return 
         for item in pids:
             os.killpg(item, signal.SIGKILL)
             print("you killed the processes ", item, "successfully!")
-        if len(pids) :
-            print(f"there are no tasks on device {self.GPU_index}")
-            return 
+  
        
         # print(f" successfully kill devce {self.GPU_index}!")
         self.show_process()
@@ -71,14 +74,14 @@ class GPUgo():
         return df
 
 
-    def ShowmyGpuInfo():
+    def ShowmyGpuInfo(self):
         print('====='*20)
 
         df = self.MyGpuInfo()
         print(df.to_string(index=False))
         print('\n')
         print('-----'*20)
-        self.GpuProcessInfo()
+        print(self.GpuProcessInfo())
         print('====='*20)
 
 
@@ -112,7 +115,7 @@ class GPUgo():
         for gpu in self.GPUs:
             df = pd.concat([df,gpu.tasks_info()])
         if len(df.dropna()) == 0:
-            print(f"there is no task on device !")
+            print(f"there is no task any device !")
             pass
         else:    
             # print(df.to_string(index=False))
@@ -133,42 +136,3 @@ class GPUgo():
 
 
 
-@click.command()
-@click.option('-t',is_flag=True )
-@click.option('-k', required=False, type = int, help='kill all process on device, enter -1 to kill all tasks on all GPUs')
-@click.argument('file',nargs=-1 ,type=click.File('rb'))
-
-
-
-
-def main( t,k,file):
-    gpugo = GPUgo()
-    # GPUs = GetGpuInfo()
-    print(gpugo.GpuProcessInfo())
-    # print(gpugo.Pidmem(8187))
-    if file:
-        line = file[1].readlines()
-        for item in line:
-            item = str(item,'utf-8')
-            print(item)
-
-
-
-    # if k != None : 
-    #     if k > len(GPUs):
-    #         print(f"there is no device {k} Plase check!")
-            
-    #     if k == -1:
-    #         [gpu.kill_process() for gpu in GPUs]
-            
-    #     else:
-    #         GPUs[k].kill_process()
-    #         return
-    # else:    
-    #     MyGpuInfo(GPUs)
-
-
-
-
-if __name__ == '__main__':
-    main()

@@ -7,17 +7,17 @@ from  time import sleep
 import signal
 import shlex
 from gpu import GPUgo
-# from GPUgo import Pidmem
 from collections import OrderedDict
 import os
 import time
+from loguru import logger 
 
 class TaskAssignment:
     # """ this class is for assigning tasks to different GPU devices 
 
     
     # """
-    def __init__(self,task_path = './test_parallel.sh', firstwaitTime = 15, maxdeiveoccmem = 0.9):
+    def __init__(self,task_path,firstwaitTime = 15, maxdeiveoccmem = 0.9 , perdetask = 3):
         self.task_path = task_path
         self.tasks_string = None
         self.list_pid = []
@@ -28,8 +28,8 @@ class TaskAssignment:
         self.de_assign_task = OrderedDict()
         self.taskmemocc = None
         self.tasktime = multiprocessing.Queue()
-
-
+        self.perdetask = perdetask
+        self.self.gpugo = GPUgo()
     def get_tasks(self):
 
         file = open(self.task_path,'r', encoding='utf-8')
@@ -41,43 +41,36 @@ class TaskAssignment:
 
 
 
-   
-
-    def start_procs(self):
-        procs = []
-        for task_index,task_string in enumerate(self.tasks_string):
-            p = multiprocessing.Process(target=self.Run_task, args=(task_string,task_index,self.queue), name=('process_' ))
-            procs.append(p)
-            p.start()
-            print('starting process {}'.format(p.pid))
-        return procs
-
     def Run_task_glance(self,task_string, task_index, queue,device = 0):
-        args = shlex.split(task_string)
 
+        args = shlex.split(task_string)
         os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
         task_info = Popen(args,shell=False, stdout = PIPE,stderr=PIPE,env = os.environ)
         sleep(self.firstwaitTime)
-        usedmem = gpugo.Pidmem(task_info.pid)[0]
+        usedmem = self.gpugo.Pidmem(task_info.pid)[0]
         sleep(1)
         self.queue.put([task_index, usedmem])
         task_info.kill()
+
+
+
+
 
     def Run_task_trian(self,task_index,remian_queue,tasktime,device = 0):
 
         args = shlex.split(self.tasks_string[task_index])
         os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
         task_info = Popen(args,shell=False, stdout = PIPE,stderr=PIPE,env = os.environ)
-        # sleep(16)
-        # task_info.kill()
-        task_info.wait()
-        if  not remian_queue.empty():
-            nexttask = remian_queue.get()
+        sleep(16)
+        task_info.kill()
+        logger.info(f'{self.tasks_string[task_index]} successful finished! ')
+
+
            
         while( not remian_queue.empty()):
-            
+            nexttask = remian_queue.get()
             for device_id in range(len(self.de_assign_task)):
-                defreemem = gpugo.MyGpuInfo()[['device_id','memoryFree(MB)']]
+                defreemem = self.gpugo.MyGpuInfo()[['device_id','memoryFree(MB)']]
                 defreemem = defreemem.set_index('device_id',drop=True).T.to_dict('list')
                 if(self.maxdeiveoccmem * defreemem[str(device_id)][0] - self.taskmemocc[nexttask] > 0):
 
@@ -90,12 +83,14 @@ class TaskAssignment:
                         sleep(self.firstwaitTime)
                     task_info = Popen(args,shell=False, stdout = PIPE,stderr=PIPE,env = os.environ)
                     tasktime.put( int(time.time() ))
-                    # sleep(10)
-                    # task_info.kill()
-                    task_info.wait()
-                    nexttask = remian_queue.get()
+                    sleep(10)
+                    task_info.kill()
+                    logger.info(f'{self.tasks_string[task_index]} successful finished! ')
+
                 else:
                     sleep(10)   
+
+        task_info.terminate()
 
 
     # the first time to calcuate every task's used memory for assignment once for each time tasks queue
@@ -103,23 +98,27 @@ class TaskAssignment:
         self.tasks_string = self.get_tasks()
         tasks_memlist = []
         mem_list = []
-        print("calculating the tasks occupied memory!")
+        logger.info("calculating the tasks occupied memory!")
         for task_index,task_string in enumerate(self.tasks_string):
             p = multiprocessing.Process(target=self.Run_task_glance, args=(task_string, task_index, self.queue,0), name=('process_' ))
-            print(f"calculate task {task_index}")
             p.start()
             p.join()
-            tasks_memlist.append(self.queue.get())
+            temp_memory = self.queue.get()
+            tasks_memlist.append(temp_memory)
+            logger.info(f"task {task_index}'s  occupied memory is {temp_memory[1]}")
+
         for item in range(len(tasks_memlist)):
             mem_list.append(tasks_memlist[item][1])
 
         return mem_list
 
-    
-    def assign(self, sorted_li,sorted_index):
-        print(sorted_index)
 
-        defreemem = gpugo.MyGpuInfo()[['device_id','memoryFree(MB)']]
+
+
+    def assign(self, sorted_li,sorted_index):
+        logger.info(sorted_index)
+
+        defreemem = self.gpugo.MyGpuInfo()[['device_id','memoryFree(MB)']]
         defreemem = defreemem.set_index('device_id',drop=True).T.to_dict('list')
 
         for i in range(len(defreemem)):
@@ -132,17 +131,25 @@ class TaskAssignment:
             while( self.maxdeiveoccmem * defreemem[device][0] - curr_assignmem > 0 and len(sorted_li) > 0 ):
                 if (  self.maxdeiveoccmem * defreemem[device][0] - curr_assignmem <  sorted_li[0]):
                     break
+              
                 else:
-                    task_toadd = sorted_li.pop(0)
-                    tindex_toadd = sorted_index.pop(0)
-                    curr_assignmem = curr_assignmem + task_toadd
-                    self.de_assign_task[device].append(tindex_toadd)
+                    if(len(self.de_assign_task[device]) <  self.perdetask ):
+                        task_toadd = sorted_li.pop(0)
+                        tindex_toadd = sorted_index.pop(0)
+                        curr_assignmem = curr_assignmem + task_toadd
+                        self.de_assign_task[device].append(tindex_toadd)
+                    else:
+                        break
+
             if len(sorted_index) == 0:
                 break
 
-        print('>>>: ', self.de_assign_task, "left task", sorted_li)
+        logger.info(f'first assign {self.de_assign_task}   remaining task  {sorted_li}')
         
         return sorted_li,sorted_index
+
+
+
 
     def start_multi(self):
         procs = []
@@ -158,26 +165,34 @@ class TaskAssignment:
                     procs.append(p)
             for p in procs:
                 p.join()
+            for p in procs:
+                p.terminate()
         except KeyboardInterrupt:
-            print ("Caught KeyboardInterrupt, terminating workers")
+            logger.info ("Caught KeyboardInterrupt, terminating workers")
             for p in procs:
                 p.terminate()
                 p.join()
-        # print(self.de_assign_task)
-    
+
+
+
+
+
     def run(self):
+        logger.add("./file.log", format="{time} {level} {message}", filter="", level="INFO", enqueue=True) 
+
         remaining_tasknum = 0 
         self.taskmemocc = self.cal_tasks_memory()
-        # self.taskmemocc = [109000,1000,2000,3000,200000,4000,5500,4000,1000,8000]
-
+        # self.taskmemocc = [1000,2000,4999,3000,12312,2343,2444]
         sorted_li = sorted(self.taskmemocc)
-        print('finish tasks glancing here are tasks estimated memory by order: \n', sorted_li)
+        logger.info('finish tasks glancing here are tasks estimated memory by order: \t', sorted_li)
+        print(self.taskmemocc[1])
+        # logger.info('finish tasks glancing here are tasks estimated memory by order: \t', self.taskmemocc[1])
 
         sorted_index = sorted(range(len(self.taskmemocc)), key=lambda k: self.taskmemocc[k])
-        if sorted_li[0] > max(gpugo.MyGpuInfo()['memoryTotal(MB)'].values):
-            print("the smallest model required memory is beyond your device capacity")
+        if sorted_li[0] > max(self.gpugo.MyGpuInfo()['memoryTotal(MB)'].values):
+            logger.info("the smallest model required memory is beyond your device capacity")
             return
-
+ 
         sorted_li,sorted_index = self.assign(sorted_li,sorted_index)
         for i in self.de_assign_task.keys():
             remaining_tasknum += len(self.de_assign_task[i])
@@ -185,10 +200,12 @@ class TaskAssignment:
             self.remian_queue.put(i)
         if (remaining_tasknum): self.start_multi()
 
-if __name__ == "__main__":
-    gpugo = GPUgo()
-    assign = TaskAssignment()
-    assign.run()
 
 
-#   print(GPUs)
+
+
+
+# if __name__ == "__main__":
+#     self.gpugo = self.gpugo()
+#     assign = TaskAssignment()
+#     assign.run()
