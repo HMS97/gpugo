@@ -9,13 +9,13 @@ GPU. This will save lots of time. If you are a student with limited GPU resource
 1. [Installation](#installation)
 1. [Usage](#usage)
    1. [show gpu information](#show-gpu-information)
-   2. [kill all process on specific device](#kill-all-process-on-specific-device)
+   2. [kill all process on specific device by one command](#kill-all-process-on-specific-device)
    3. [run dl tasks parallelly](#run-dl-tasks-parallelly)
 1. [License](#license)
 
 
 ## Background
-During the experiment of deep learning, I have to run each task for different backbone many times. At first, I just write them into a script and run it. But this will last a long time even if I have powerful GPU devices. So then I start to think about how to run the experiment faster. Then I write this library GPUgo to execute tasks parallelly. `GPUgo` calculate each task's memory by pre-running in limited time. Then `GPUgo` will assign tasks to diferent GPU device by memory's ascending order. After `GPUgo` get the order, it will start mutil processes to run these task simultaneously.
+During the experiment of deep learning, I have to run each task for different backbone many times. At first, I just write them into a script and run it. But this will last a long time even if I have powerful GPU devices. So then I start to think about how to run the experiment faster. Then I write this library GPUgo to execute tasks in parallel. `GPUgo` calculate each task's memory by pre-running in limited time. Then `GPUgo` will assign tasks to diferent GPU device by memory's ascending order. After `GPUgo` get the order, it will start mutil processes to run these task simultaneously.
 
 
 
@@ -68,7 +68,7 @@ Your output should look something like following, depending on your number of GP
 gas -k [device_id]
 ```
 
-### run dl tasks parallelly
+### run dl tasks in parallel
 the script to execute  like this.
 ```sh
 python train_proposed.py --model alexnet --Augmentation True 
@@ -79,7 +79,7 @@ python train_proposed.py --model resnet50  --Augmentation False
 python train_proposed.py --model resnet50  --Augmentation False 
 ```
 
-You're going to execute these tasks parallelly.
+You're going to execute these tasks in parallel.
 ```sh
 #This method will run several tasks at the same time.
 #Make sure your script is under right conda environment
