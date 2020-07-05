@@ -1,0 +1,13 @@
+aiocontextvars==0.2.2
+certifi==2020.6.20
+click==7.1.2
+contextvars==2.4
+gpugo==0.1.0
+immutables==0.14
+loguru==0.5.1
+numpy==1.19.0
+pandas==1.0.5
+psutil==5.7.0
+python-dateutil==2.8.1
+pytz==2020.1
+six==1.15.0
