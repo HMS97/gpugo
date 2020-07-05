@@ -120,4 +120,4 @@ Sat Jul  4 17:04:26 2020
 +-----------------------------------------------------------------------------+
 ```
 ## LICENSE
-See [LICENSE](https://github.com/anderskm/gputil/blob/master/LICENSE.txt)
+See [LICENSE](https://github.com/wuchangsheng951/gpugo/blob/master/LICENSE)
