@@ -1,6 +1,6 @@
  # GPUgo
 `GPUgo` is a Python module for getting the GPU status from NVIDA GPUs using `nvidia-smi`.
-`GPUgo` would give all your sever's gpu information. Besides, GPUgo can assign deep learning tasks to GPU according remaining GPU free memory automatically and run these tasks parallelly without artificial specified
+`GPUgo` would give all your sever's gpu information. Besides, `GPUgo` can assign deep learning tasks to GPU according remaining GPU free memory automatically and run these tasks parallelly without artificial specified
 GPU. This will save lots of time. If you are a student with limited GPU resources, it's best for you. 
 
 **Table of Contents**
@@ -21,7 +21,7 @@ During the experiment of deep learning, I have to run each task for different ba
 
 ## Requirements
 NVIDIA GPU with latest NVIDIA driver installed.
-GPUtil uses the program `nvidia-smi` to get the GPU status of all available NVIDIA GPUs. `nvidia-smi` should be installed automatically, when you install your NVIDIA driver.
+`gpugo` uses the program `nvidia-smi` to get the GPU status of all available NVIDIA GPUs. `nvidia-smi` should be installed automatically, when you install your NVIDIA driver.
 
 For now, `GPUgo` only support python3.6 or higher on unbuntu. 
 
@@ -37,7 +37,7 @@ Tested on CUDA driver version 418.39 and python 3.7.
  pip install -r requirements.txt
  pip setup.py install
  ```
- 2. 
+ 2. by pip install
  ```
  pip install gpugo
  ```
