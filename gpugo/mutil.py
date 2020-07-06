@@ -20,7 +20,7 @@ class TaskAssignment:
         maxdeiveoccmem: safe level free memory to ensure no overflow
         perdetask: the maxinum task on each device 
     """
-    def __init__(self,task_path,firstwaitTime = 15, maxdeiveoccmem = 0.9 , perdetask = 99):
+    def __init__(self, task_path, firstwaitTime = 15, maxdeiveoccmem = 0.9 , perdetask = 99):
         self.task_path = task_path
         self.tasks_string = None
         self.list_pid = []
