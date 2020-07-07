@@ -1,0 +1,12 @@
+README.md
+setup.py
+gpugo/__init__.py
+gpugo/gpu.py
+gpugo/main.py
+gpugo/mutil.py
+gpugo.egg-info/PKG-INFO
+gpugo.egg-info/SOURCES.txt
+gpugo.egg-info/dependency_links.txt
+gpugo.egg-info/entry_points.txt
+gpugo.egg-info/requires.txt
+gpugo.egg-info/top_level.txt
