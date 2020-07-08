@@ -69,11 +69,12 @@ class TaskAssignment:
         # task_info.kill()
         logger.info(f'{self.tasks_string[task_index]} successful finished! ')
 
+        todo_list = []
         if (not remian_queue.empty()):
             task_index = remian_queue.get()
+            todo_list.append(task_index)
 
-
-        while( not remian_queue.empty()):
+        while( len(todo_list) > 0 ):
            
 
             for device_id in range(len(self.de_assign_task)):
@@ -98,10 +99,10 @@ class TaskAssignment:
                     # sleep(15)
                     # task_info.kill()
                     logger.info(f'{self.tasks_string[task_index]} successful finished! ')
-
+                    todo_list.pop()
                     if (not remian_queue.empty()):
                         task_index = remian_queue.get()
-
+                        todo_list.append(task_index)
 
                 else:
                     sleep(10)   
