@@ -90,6 +90,8 @@ Parameters
 - -f the path for script to execute. Required
 - -n the maxinum task number run on each device.
 - -t the duration execution time to estimate task's used of memory.
+- -n running max task number on each device (default 3)
+- -d select specific device to run tasks.
 
 ```sh
 +-----------------------------------------------------------------------------+
