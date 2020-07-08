@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name='gpugo',
-    version='0.1.1',
+    version='0.1.2',
     packages=['gpugo'],
     description='Show GPU information and deep learning tasks assignment',
     author='Huiming Sun',
