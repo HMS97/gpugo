@@ -30,21 +30,18 @@ Tested on CUDA driver version 418.39 and python 3.7.
 
 ## Installation
 
- 1.  Clone this repository:
+ Clone this repository:
  ```
  git clone  --recursive https://github.com/wuchangsheng951/gpugo.git
  cd gpugo
  pip install -r requirements.txt
  pip setup.py install
  ```
- 2. by pip install
- ```
- pip install gpugo
- ```
+
 
 ## Usage
 ### show gpu information
-show the device's information like  `nvidia-smi`
+show GPU device's information like  `nvidia-smi`
 ```
 $~ gas
 ```
