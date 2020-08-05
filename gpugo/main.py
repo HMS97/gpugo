@@ -7,16 +7,19 @@ from loguru import logger
 
 
 @click.command()
-@click.option('-t',is_flag=True )
+@click.option('-t', help = "firstwaitTime", type = int, default = 15)
 @click.option('-k', required=False, type = int, help='kill all process on device, enter -1 to kill all tasks on all GPUs')
 @click.option('-f', help="the script for assignment", type=click.STRING)
-@click.option('-n', help="task number on each device ", type=int, default = 3)
+@click.option('-n', help="task quantitative limitation on each device ", type=int, default = 3)
 @click.option('-d', help="select specific device to run tasks", type=str)
+@click.option('-l', help="safe free memory level to ensure no overflow", type=float, default = 0.9)
 
 
 
 
-def main( t,k,f,n,d):
+def main( t,k,f,n,d,l):
+
+
     gpugo = GPUgo()
     gpugo.GetGpuInfo()
     GPUs = gpugo.GPUs
@@ -34,8 +37,8 @@ def main( t,k,f,n,d):
 
         assert os.path.isfile(f), "Please enter correct script path!"
         logger.add("./file.log",format="{time} {message}", filter="", level="INFO") 
-
-        assign = TaskAssignment(task_path = f,  perdetask = n)
+      
+        assign = TaskAssignment(task_path = f,  perdetask = n, firstwaitTime = t, maxdeiveoccmem = l)
         assign.run()
 
     

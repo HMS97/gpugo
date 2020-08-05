@@ -17,10 +17,10 @@ class TaskAssignment:
     args:
         task_path: the file's path for your script
         firstwaitTime: the estimation time for the first execution
-        maxdeiveoccmem: safe level free memory to ensure no overflow
+        maxdeiveoccmem: safe free memory level to ensure no overflow
         perdetask: the maxinum task on each device 
     """
-    def __init__(self, task_path, firstwaitTime = 15, maxdeiveoccmem = 0.9 , perdetask = 99):
+    def __init__(self, task_path, firstwaitTime = 15, maxdeiveoccmem = 0.9 , perdetask = 10):
         self.task_path = task_path
         self.tasks_string = None
         self.list_pid = []
@@ -36,10 +36,15 @@ class TaskAssignment:
 
     ##get task from script
     def get_tasks(self):
+        logger.info(f"task on each device'maximum limitation is {self.perdetask}")
+        logger.info(f"firstwaitTime is {self.firstwaitTime} s ")
+        logger.info(f"safe free memory level to ensure no overflow is {self.maxdeiveoccmem}")
+
         file = open(self.task_path,'r', encoding='utf-8')
         tasks = []
         line = file.readlines()
         for item in line:
+            # if not item.strip():
             tasks.append(item)
         return tasks
 

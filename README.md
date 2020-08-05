@@ -35,7 +35,7 @@ Tested on CUDA driver version 418.39 and python 3.7.
  git clone  --recursive https://github.com/wuchangsheng951/gpugo.git
  cd gpugo
  pip install -r requirements.txt
- pip setup.py install
+ python setup.py install 
  ```
 
 
@@ -85,10 +85,11 @@ $~ gas -f [script path for script]
 Parameters
 
 - -f the path for script to execute. Required
-- -n the maxinum task number run on each device.
-- -t the duration execution time to estimate task's used of memory.
+- -t the duration execution time to estimate task's used of memory.（default 15s）
 - -n running max task number on each device (default 3)
 - -d select specific device to run tasks.
+
+> note : GPUgo calculates every task's used memory by start it and keep it running for a while.
 
 ```sh
 +-----------------------------------------------------------------------------+
