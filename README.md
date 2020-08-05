@@ -34,7 +34,7 @@ Tested on CUDA driver version 418.39 and python 3.7.
  ```
  git clone  --recursive https://github.com/wuchangsheng951/gpugo.git
  cd gpugo
- pip install -r requirements.txt
+ pip install -r requirements
  python setup.py install 
  ```
 
