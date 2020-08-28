@@ -36,9 +36,9 @@ class TaskAssignment:
 
     ##get task from script
     def get_tasks(self):
-        logger.info(f"task on each device'maximum limitation is {self.perdetask}")
-        logger.info(f"firstwaitTime is {self.firstwaitTime} s ")
-        logger.info(f"safe free memory level to ensure no overflow is {self.maxdeiveoccmem}")
+        logger.info(f"Task on each device'maximum limitation is {self.perdetask}")
+        logger.info(f"First wait time is {self.firstwaitTime} s ")
+        logger.info(f"Safe free memory level to ensure no overflow is {self.maxdeiveoccmem}")
 
         file = open(self.task_path,'r', encoding='utf-8')
         tasks = []
@@ -117,12 +117,21 @@ class TaskAssignment:
 
     # the first time to calcuate every task's used memory for assignment once for each time tasks queue
     def cal_tasks_memory(self):
-        self.tasks_string = self.get_tasks()
         tasks_memlist = []
         mem_list = []
+
+        self.tasks_string = self.get_tasks()
+        defreemem = self.gpugo.MyGpuInfo()[['device_id','memoryFree(MB)']]
+        maxMM_deviceid = defreemem['memoryFree(MB)'].argmax()
+
+        logger.info(f"Current GPU status!")
+        logger.info(defreemem)
+
+       
         logger.info("calculating the tasks occupied memory!")
         for task_index,task_string in enumerate(self.tasks_string):
-            p = multiprocessing.Process(target=self.Run_task_glance, args=(task_string, task_index, self.queue,0), name=('process_' ))
+            logger.info(f"now we are using GPU {maxMM_deviceid}")
+            p = multiprocessing.Process(target=self.Run_task_glance, args=(task_string, task_index, self.queue, maxMM_deviceid ), name=('process_' ))
             p.start()
             p.join()
             temp_memory = self.queue.get()
@@ -222,4 +231,9 @@ class TaskAssignment:
         for i in sorted_index:
             self.remian_queue.put(i)
         if (remaining_tasknum): self.start_multi()
+
+# if __name__ == '__main__':
+#     TA = TaskAssignment(task_path='mmm')
+#     maxMM_deviceid = TA.gpugo.MyGpuInfo()[['device_id','memoryFree(MB)']]
+#     print(maxMM_deviceid['memoryFree(MB)'][maxMM_deviceid['memoryFree(MB)'].argmax()]) 
 
